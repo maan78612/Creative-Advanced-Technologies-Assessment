@@ -65,6 +65,7 @@ class _EventDetailState extends State<EventDetail> {
                     categoriesTab(appProvider),
                     SizedBox(height: 20.sp),
                     eventImage(widget.imageData),
+                    SizedBox(height: 20.sp),
                     eventInfo(widget.imageCaptions),
                     SizedBox(height: 20.h),
                   ],
@@ -83,22 +84,42 @@ class _EventDetailState extends State<EventDetail> {
             .toList()
             .first;
         return Padding(
-          padding:  EdgeInsets.symmetric(horizontal: 4.sp),
+          padding: EdgeInsets.symmetric(horizontal: 4.sp),
           child: ClipRRect(
-              borderRadius: BorderRadius.circular(8.sp),
-              child: CachedNetworkImage(
-                imageUrl: cat.image ?? "",
-                imageBuilder: (context, imageProvider) => Container(
-                  width: 50.sp,
-                  height: 50.sp,
-                  decoration: BoxDecoration(
-                    image:
-                        DecorationImage(image: imageProvider, fit: BoxFit.cover),
+            borderRadius: BorderRadius.circular(8.sp),
+            child: Image.network(
+              cat.image,
+              width: 50.sp,
+              height: 50.sp,
+              fit: BoxFit.cover,
+              loadingBuilder: (BuildContext context, Widget child,
+                  ImageChunkEvent? loadingProgress) {
+                if (loadingProgress == null) return child;
+                return Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded /
+                            loadingProgress.expectedTotalBytes!
+                        : null,
                   ),
-                ),
-                placeholder: (context, url) => CircularProgressIndicator(),
-                errorWidget: (context, url, error) => errorImage(),
-              )),
+                );
+              },
+            ),
+
+            // CachedNetworkImage(
+            //   imageUrl: cat.image,
+            //   imageBuilder: (context, imageProvider) => Container(
+            //     width: 50.sp,
+            //     height: 50.sp,
+            //     decoration: BoxDecoration(
+            //       image:
+            //           DecorationImage(image: imageProvider, fit: BoxFit.cover),
+            //     ),
+            //   ),
+            //   placeholder: (context, url) => CircularProgressIndicator(),
+            //   errorWidget: (context, url, error) => errorImage(),
+            // )
+          ),
         );
       }),
     );
@@ -134,7 +155,7 @@ class _EventDetailState extends State<EventDetail> {
             String? text = imageCaption[index].caption;
             return Text(
               text ?? "",
-              style: latoBold.copyWith(
+              style: latoRegular.copyWith(
                   fontSize: 14.sp, color: AppConfig.colors.titleColor),
               textAlign: TextAlign.start,
             );
@@ -143,47 +164,48 @@ class _EventDetailState extends State<EventDetail> {
   }
 
   Widget eventImage(ImagesByID imageData) {
-    return SizedBox(
-      height: 220.sp,
-      child: Stack(
-        children: [
-          ClipRRect(
-              borderRadius: BorderRadius.circular(8.sp),
-              child: CachedNetworkImage(
-                imageUrl: imageData.cocoUrl ?? "",
-                imageBuilder: (context, imageProvider) => Container(
-                  height: 220.sp,
-                  decoration: BoxDecoration(
-                    image:
-                    DecorationImage(image: imageProvider, fit: BoxFit.cover),
-                  ),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        ClipRRect(
+            borderRadius: BorderRadius.circular(8.sp),
+            child: CachedNetworkImage(
+              imageUrl: imageData.cocoUrl ?? "",
+              imageBuilder: (context, imageProvider) => Container(
+                height: 220.sp,
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: imageProvider, fit: BoxFit.cover),
                 ),
-                placeholder: (context, url) => CircularProgressIndicator(),
-                errorWidget: (context, url, error) => Center(child: errorImage()),
-              )),
-          OverlayTutorialScope(
-            enabled: true,
-            overlayColor: Colors.blueAccent.withOpacity(.6),
-            overlayChildren: List.generate(segmentationAgainstCatID.length, (index){
-              return OverlayTutorialHole(
-                enabled: true,
-                overlayTutorialEntry: OverlayTutorialCustomShapeEntry(
-                  shapeBuilder: (rect, path) {
-                    path = Path.combine(
-                      PathOperation.difference,
-                      path,
-                      Path()..addPolygon(segmentationAgainstCatID[0].offset, true),
-                    );
-                    return path;
-                  },
-                ),
-                child:SizedBox.shrink(),
-              );
-
-            }), child: SizedBox.shrink(),
-          ),
-        ],
-      ),
+              ),
+              placeholder: (context, url) => CircularProgressIndicator(),
+              errorWidget: (context, url, error) =>
+                  Center(child: errorImage()),
+            )),
+        OverlayTutorialScope(
+          enabled: true,
+          overlayColor: Colors.blueAccent.withOpacity(.6),
+          overlayChildren:
+              List.generate(segmentationAgainstCatID.length, (index) {
+            return OverlayTutorialHole(
+              enabled: true,
+              overlayTutorialEntry: OverlayTutorialCustomShapeEntry(
+                shapeBuilder: (rect, path) {
+                  path = Path.combine(
+                    PathOperation.difference,
+                    path,
+                    Path()
+                      ..addPolygon(segmentationAgainstCatID[index].offset, true),
+                  );
+                  return path;
+                },
+              ),
+              child: SizedBox.shrink(),
+            );
+          }),
+          child: SizedBox.shrink(),
+        ),
+      ],
     );
   }
 
