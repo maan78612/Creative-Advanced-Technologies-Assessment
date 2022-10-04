@@ -1,16 +1,23 @@
 # assessment
 
-A new Flutter project.
+Creative Advance Assessment
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+Flutter 3.3.3 • channel stable 
+Dart 2.18.2 • DevTools 2.15.0
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+
+
+For state-management use Provider (Recommended By Flutter)
+To fetch data from Api calls uses Dio package
+
+
+For Iphone please run below line on terminal
+
+cd ios && arch -x86_64 pod install && cd ../  (For M1 Chip)
+OR
+cd ios &&  pod install && cd ../  (For Intel Chip)
+
