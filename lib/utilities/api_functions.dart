@@ -6,85 +6,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 class ApiRequests {
-  Future getRequest({required String url, Map<String, dynamic>? params}) async {
-    Dio dio = Dio();
-    dynamic response;
-    if (kDebugMode) {
-      print("URL is $url");
-    }
-    bool isConnected = await checkInternet();
-    if (isConnected == false) {
-      if (kDebugMode) {
-        print("no internet connection");
-      }
-      ErrorResponse(
-          errorCode: -444, errorDescription: " No internet connection");
-    }
-    try {
-      response = await dio.get(
-        url,
-        queryParameters: params,
-        options: Options(
-          headers: MyHeaders.header(),
-          sendTimeout: 12000, //_defaultTimeout,
-          receiveTimeout: 12000, //_defaultTimeout,
-        ),
-      );
-      if (kDebugMode) {
-        print(response?.statusCode);
-        print("response is $response");
-      }
 
-      var jsonResponse = json.decode(response.toString());
-      if (response.statusCode == 200) {
-        return jsonResponse;
-      } else {
-        if (kDebugMode) {
-          print("error when hit Api ${response.statusMessage}");
-        }
-        return ErrorResponse(
-          errorCode: response.statusCode,
-          errorDescription: jsonDecode(response.statusMessage!),
-        );
-      }
-    }on DioError catch (e) {
-      if (e.error is HttpException) {
-        if (kDebugMode) {
-          print("Couldn't find the post [HttpException]\n${e.message}");
-        }
 
-        return ErrorResponse(
-          errorCode: response?.statusCode,
-          errorDescription: e.message,
-        );
-      } else if (e.error is FormatException) {
-        if (kDebugMode) {
-          print("Bad response format [FormatException]\n${e.message}");
-        }
-        return ErrorResponse(
-          errorCode: response?.statusCode,
-          errorDescription: e.message,
-        );
-      } else if (e.error is SocketException) {
-        if (kDebugMode) {
-          print('No Internet connection [SocketException]\n${e.message}');
-        }
-
-        return ErrorResponse(
-          errorCode: response?.statusCode,
-          errorDescription: e.message,
-        );
-      } else {
-        if (kDebugMode) {
-          print('[get] error ($url) -> ${e.toString()}');
-        }
-        return ErrorResponse(
-          errorCode: response?.statusCode,
-          errorDescription: e.message,
-        );
-      }
-    }
-  }
 
   Future postRequest(
       {required String url, required Map<String, dynamic> body}) async {
@@ -168,6 +91,92 @@ class ApiRequests {
       }
     }
   }
+
+
+
+
+
+  Future getRequest({required String url, Map<String, dynamic>? params}) async {
+    Dio dio = Dio();
+    dynamic response;
+    if (kDebugMode) {
+      print("URL is $url");
+    }
+    bool isConnected = await checkInternet();
+    if (isConnected == false) {
+      if (kDebugMode) {
+        print("no internet connection");
+      }
+      ErrorResponse(
+          errorCode: -444, errorDescription: " No internet connection");
+    }
+    try {
+      response = await dio.get(
+        url,
+        queryParameters: params,
+        options: Options(
+          headers: MyHeaders.header(),
+          sendTimeout: 12000, //_defaultTimeout,
+          receiveTimeout: 12000, //_defaultTimeout,
+        ),
+      );
+      if (kDebugMode) {
+        print(response?.statusCode);
+        print("response is $response");
+      }
+
+      var jsonResponse = json.decode(response.toString());
+      if (response.statusCode == 200) {
+        return jsonResponse;
+      } else {
+        if (kDebugMode) {
+          print("error when hit Api ${response.statusMessage}");
+        }
+        return ErrorResponse(
+          errorCode: response.statusCode,
+          errorDescription: jsonDecode(response.statusMessage!),
+        );
+      }
+    }on DioError catch (e) {
+      if (e.error is HttpException) {
+        if (kDebugMode) {
+          print("Couldn't find the post [HttpException]\n${e.message}");
+        }
+
+        return ErrorResponse(
+          errorCode: response?.statusCode,
+          errorDescription: e.message,
+        );
+      } else if (e.error is FormatException) {
+        if (kDebugMode) {
+          print("Bad response format [FormatException]\n${e.message}");
+        }
+        return ErrorResponse(
+          errorCode: response?.statusCode,
+          errorDescription: e.message,
+        );
+      } else if (e.error is SocketException) {
+        if (kDebugMode) {
+          print('No Internet connection [SocketException]\n${e.message}');
+        }
+
+        return ErrorResponse(
+          errorCode: response?.statusCode,
+          errorDescription: e.message,
+        );
+      } else {
+        if (kDebugMode) {
+          print('[get] error ($url) -> ${e.toString()}');
+        }
+        return ErrorResponse(
+          errorCode: response?.statusCode,
+          errorDescription: e.message,
+        );
+      }
+    }
+  }
+
+
 
   Future deleteRequest(
       {required String url, required Map<String, dynamic> body}) async {

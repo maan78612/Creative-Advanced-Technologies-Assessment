@@ -29,8 +29,7 @@ class _CategoriesGridViewState extends State<CategoriesGridView> {
     var num1 = Get.width / serviceWidth;
     rowLength = num1.toInt();
     perPageItem = rowLength + rowLength;
-    print("per row Items are $rowLength");
-    print("per page Items are $perPageItem");
+
     var num =
         (Provider.of<AppProvider>(context, listen: false).categoryList.length /
             perPageItem);
@@ -41,8 +40,6 @@ class _CategoriesGridViewState extends State<CategoriesGridView> {
         .length
         .remainder(perPageItem);
     lastPageItemLength = reminder == 0 ? perPageItem : reminder;
-
-    print("Reminder is $reminder");
 
     super.initState();
   }
@@ -98,33 +95,33 @@ class _CategoriesGridViewState extends State<CategoriesGridView> {
 
   Row categorySlider() {
     return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            categorySliderButton(
-                onTab: () {
-                  if (selectedIndex > 1) {
-                    pageController.animateToPage(selectedIndex - 1,
-                        duration: Duration(milliseconds: 500),
-                        curve: Curves.easeInOut);
-                  }
-                },
-                icon: Icon(Icons.arrow_back_ios, size: 20.sp)),
-            Text(
-              "${selectedIndex+1}/${pageCount}",
-              textAlign: TextAlign.center,
-              style: latoBold.copyWith(fontSize: 18.sp),
-            ),
-            categorySliderButton(
-                onTab: () {
-                  if (selectedIndex <= pageCount) {
-                    pageController.animateToPage(selectedIndex + 1,
-                        duration: Duration(milliseconds: 500),
-                        curve: Curves.easeInOut);
-                  }
-                },
-                icon: Icon(Icons.arrow_forward_ios, size: 20.sp)),
-          ],
-        );
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        categorySliderButton(
+            onTab: () {
+              if (selectedIndex >= 1) {
+                pageController.animateToPage(selectedIndex - 1,
+                    duration: Duration(milliseconds: 500),
+                    curve: Curves.easeInOut);
+              }
+            },
+            icon: Icon(Icons.arrow_back_ios, size: 20.sp)),
+        Text(
+          "${selectedIndex + 1}/${pageCount}",
+          textAlign: TextAlign.center,
+          style: latoBold.copyWith(fontSize: 18.sp),
+        ),
+        categorySliderButton(
+            onTab: () {
+              if (selectedIndex <= pageCount) {
+                pageController.animateToPage(selectedIndex + 1,
+                    duration: Duration(milliseconds: 500),
+                    curve: Curves.easeInOut);
+              }
+            },
+            icon: Icon(Icons.arrow_forward_ios, size: 20.sp)),
+      ],
+    );
   }
 
   GestureDetector categorySliderButton(
@@ -145,7 +142,6 @@ class _CategoriesGridViewState extends State<CategoriesGridView> {
       Categories categories, AppProvider appProvider) {
     return GestureDetector(
       onTap: () {
-
         appProvider.addTAgs(categories);
       },
       child: SizedBox(
@@ -154,32 +150,31 @@ class _CategoriesGridViewState extends State<CategoriesGridView> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: serviceWidth / 8),
-          child: ClipRRect(
-          borderRadius: BorderRadius.circular(8.sp),
-            child: CachedNetworkImage(
-              imageUrl: categories.image ?? "",
-              imageBuilder: (context, imageProvider) => Container(
-                width: 50.sp,
-                height: 50.sp,
-                decoration: BoxDecoration(
-                  image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
-                ),
-              ),
-              placeholder: (context, url) => CircularProgressIndicator(),
-              errorWidget: (context, url, error) => errorImage(),
-            )),
-        ),
-
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: serviceWidth / 8),
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8.sp),
+                  child: CachedNetworkImage(
+                    imageUrl: categories.image ?? "",
+                    imageBuilder: (context, imageProvider) => Container(
+                      width: 50.sp,
+                      height: 50.sp,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: imageProvider, fit: BoxFit.cover),
+                      ),
+                    ),
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) => errorImage(),
+                  )),
+            ),
             SizedBox(height: 10.h),
           ],
         ),
       ),
     );
-
   }
+
   Widget errorImage() {
     return Padding(
       padding: EdgeInsets.all(5.sp),

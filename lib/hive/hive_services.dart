@@ -1,7 +1,7 @@
 import 'package:hive/hive.dart';
 
 class HiveServices {
-  static String boxName = "creativeAdvance";
+  static String boxName = "creativeAdvanceTech";
   static String favoriteList = "favoriteList";
   static var creativeAdvanceHiveBox;
 

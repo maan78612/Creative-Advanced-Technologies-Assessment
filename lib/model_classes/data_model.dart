@@ -3,24 +3,30 @@
 
 class COCOExplorerData{
 
-  List<ImagesByID>? imagesByID;
+  List<ImageData>? imagesByID;
   List<ImagesSegment>? imagesSegment;
   List<ImagesCaptions>? imagesCaptions;
-  COCOExplorerData({this.imagesByID, this.imagesCaptions, this.imagesSegment});
+  COCOExplorerData({required this.imagesByID, required this.imagesCaptions, required this.imagesSegment});
+
+  COCOExplorerData.fromJson(Map<String, dynamic> json) {
+    imagesByID = json['imagesByID'];
+    imagesSegment = json['imagesSegment'];
+    imagesCaptions = json['imagesCaptions'];
+  }
 }
 
 
 
 
 
-class ImagesByID {
+class ImageData {
   int? id;
   String? cocoUrl;
   String? flickrUrl;
 
-  ImagesByID({this.id, this.cocoUrl, this.flickrUrl});
+  ImageData({this.id, this.cocoUrl, this.flickrUrl});
 
-  ImagesByID.fromJson(Map<String, dynamic> json) {
+  ImageData.fromJson(Map<String, dynamic> json) {
     id = json['id'];
     cocoUrl = json['coco_url'];
     flickrUrl = json['flickr_url'];

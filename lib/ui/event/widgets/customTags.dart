@@ -29,6 +29,7 @@ class _AppTagsCustomState extends State<AppTagsCustom>
   void dispose() {
     _timer?.cancel();
     _timer = null;
+    _animationController.dispose();
     super.dispose();
   }
 

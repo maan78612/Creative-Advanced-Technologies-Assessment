@@ -6,45 +6,64 @@ import 'package:assessment/model_classes/error_response.dart';
 import 'package:assessment/utilities/api_functions.dart';
 
 class APIServices {
-  static COCOExplorerData cocoExplorerData = COCOExplorerData();
+  static Future<dynamic> search(
+      List<int> imagesID, COCOExplorerData cocoExplorerData) async {
+    await getImagesByID(ImagesID: imagesID).then((res) async {
+      if (res is ErrorResponse) {
+        return res;
+      } else {
+        setImagesData(res, cocoExplorerData);
 
-  static Future<dynamic> search(List<int> categoryIds) async {
-    dynamic res = await getImageIDsByCategoryID(categoryIds);
-    if (res is ErrorResponse) {
-      return res;
-    } else {
-      List<int> imagesID = List<int>.from(res);
-      print("length of ImagesID is");
-      print(imagesID.length);
-      await getImagesByID(ImagesID: imagesID).then((res) async {
-        if (res is ErrorResponse) {
-          return res;
-        } else {
-          cocoExplorerData.imagesByID = List<ImagesByID>.from(
-              res.map((model) => ImagesByID.fromJson(model)));
-          await getImagesSegment(ImagesID: imagesID).then((res) async {
-            if (res is ErrorResponse) {
-              return res;
-            } else {
-              cocoExplorerData.imagesSegment = List<ImagesSegment>.from(
-                  res.map((model) => ImagesSegment.fromJson(model)));
+        await getImagesSegment(ImagesID: imagesID).then((res) async {
+          if (res is ErrorResponse) {
+            return res;
+          } else {
+            setSegmentData(res, cocoExplorerData);
 
-              await getImagesCaption(ImagesID: imagesID).then((res) {
-                if (res is ErrorResponse) {
-                  return res;
-                } else {
-                  cocoExplorerData.imagesCaptions = List<ImagesCaptions>.from(
-                      res.map((model) => ImagesCaptions.fromJson(model)));
+            await getImagesCaption(ImagesID: imagesID).then((res) {
+              if (res is ErrorResponse) {
+                return res;
+              } else {
+                setCaptionData(res, cocoExplorerData);
+              }
+            });
+          }
+        });
+      }
+    });
 
-
-                }
-              });
-            }
-          });
-        }
-      });
-    }
     return cocoExplorerData;
+  }
+
+  static void setSegmentData(res, COCOExplorerData cocoExplorerData) {
+    List<ImagesSegment> imagesSegment = [];
+    imagesSegment = List<ImagesSegment>.from(
+        res.map((model) => ImagesSegment.fromJson(model)));
+
+    print(imagesSegment.length);
+    for (var i = 0; i < imagesSegment.length; i++) {
+      cocoExplorerData.imagesSegment?.add(imagesSegment[i]);
+    }
+  }
+
+  static void setCaptionData(res, COCOExplorerData cocoExplorerData) {
+    List<ImagesCaptions> imagesCaptions = [];
+    imagesCaptions = List<ImagesCaptions>.from(
+        res.map((model) => ImagesCaptions.fromJson(model)));
+
+    for (var i = 0; i < imagesCaptions.length; i++) {
+      cocoExplorerData.imagesCaptions?.add(imagesCaptions[i]);
+    }
+  }
+
+  static void setImagesData(res, COCOExplorerData cocoExplorerData) {
+    List<ImageData> imagesByID = [];
+    imagesByID =
+        List<ImageData>.from(res.map((model) => ImageData.fromJson(model)));
+
+    for (var i = 0; i < imagesByID.length; i++) {
+      cocoExplorerData.imagesByID?.add(imagesByID[i]);
+    }
   }
 
   static Future<dynamic> getImageIDsByCategoryID(List<int> categoryIds) async {

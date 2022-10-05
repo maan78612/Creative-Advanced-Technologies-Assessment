@@ -4,13 +4,10 @@ import 'package:assessment/constants/app_constants.dart';
 import 'package:assessment/hive/hive_services.dart';
 import 'package:assessment/main.dart';
 import 'package:assessment/provider/app_provider.dart';
-import 'package:assessment/ui/event/event_list.dart';
+import 'package:assessment/ui/dashoard/dashboard.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-
-import '../model_classes/event_model.dart';
-
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
@@ -36,7 +33,7 @@ class SplashScreenState extends State<SplashScreen>
     /* Hive functions to Get favorite events from mobile database*/
     Provider.of<AppProvider>(context, listen: false)..getFavoriteList()..fetchAllCategories();
 
-    Get.to(() => EventList());
+    Get.to(() => DashBoard(index: 0,));
 
   }
 

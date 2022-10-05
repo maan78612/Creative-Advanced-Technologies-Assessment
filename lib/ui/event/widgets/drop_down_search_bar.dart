@@ -4,35 +4,23 @@ import 'package:assessment/constants/app_constants.dart';
 import 'package:assessment/constants/styles.dart';
 import 'package:assessment/model_classes/categories_model.dart';
 import 'package:assessment/provider/app_provider.dart';
-import 'package:assessment/provider/text_form_provider.dart';
 
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
-class searchDropDown extends StatefulWidget {
-  @override
-  _searchDropDownState createState() => new _searchDropDownState();
-}
-
-class _searchDropDownState extends State<searchDropDown> {
-  GlobalKey<AutoCompleteTextFieldState<Categories>> key = new GlobalKey();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  bool fillColor = false;
+class SearchBarDropDown extends StatelessWidget {
+  GlobalKey<AutoCompleteTextFieldState<Categories>> searchGlobalKey =
+      GlobalKey();
+  TextEditingController _textEditingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return Consumer2<AppProvider, TextFormProvider>(
-        builder: (context, appProvider, textFormProvider, _) {
+    return Consumer<AppProvider>(builder: (context, appProvider, _) {
       return Container(
         margin: EdgeInsets.only(
-            top: MediaQuery.of(context).padding.top,
+            top: MediaQuery.of(context).padding.top + 10.sp,
             left: 12.sp,
             right: 12.sp,
             bottom: 12.sp),
@@ -40,8 +28,8 @@ class _searchDropDownState extends State<searchDropDown> {
           children: [
             Expanded(
               child: AutoCompleteTextField<Categories>(
-                key: key,
-                controller: textFormProvider.textEditingController,
+                key: searchGlobalKey,
+                controller: _textEditingController,
                 suggestions: appProvider.categoryList,
                 style: latoRegular.copyWith(fontSize: 16.sp),
                 clearOnSubmit: true,
@@ -51,18 +39,6 @@ class _searchDropDownState extends State<searchDropDown> {
                   hintStyle: latoBold.copyWith(
                       fontSize: 16.sp, color: AppConfig.colors.grey),
                   fillColor: AppConfig.colors.fillColor,
-                  suffixIcon: (textFormProvider.searchField.isNotEmpty)
-                      ? GestureDetector(
-                          onTap: () {
-                            textFormProvider.clearSearchText();
-                          },
-                          child: Icon(
-                            Icons.cancel,
-                            color: AppConfig.colors.whiteColor,
-                            size: 14.sp,
-                          ),
-                        )
-                      : null,
                   contentPadding: const EdgeInsets.all(0.0),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10.sp)),
@@ -97,10 +73,6 @@ class _searchDropDownState extends State<searchDropDown> {
                   ),
                 ),
                 itemBuilder: (context, item) {
-                  WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                    textFormProvider.search();
-                  });
-
                   return Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text(
@@ -122,7 +94,7 @@ class _searchDropDownState extends State<searchDropDown> {
                   if (!appProvider.selectedCategories.contains(item) &&
                       item.title.isNotEmpty) {
                     appProvider.addTAgs(item);
-                    textFormProvider.textEditingController.clear();
+                    _textEditingController.clear();
                   }
                   // textFormProvider.onEditComplete();
                 },
@@ -131,7 +103,7 @@ class _searchDropDownState extends State<searchDropDown> {
             SizedBox(width: 10.sp),
             ElevatedButton(
               onPressed: () {
-                appProvider.searchByID();
+                appProvider.getImagesID();
               },
               child: Text(
                 "search",
@@ -150,13 +122,4 @@ class _searchDropDownState extends State<searchDropDown> {
       );
     });
   }
-}
-
-class LocationStatic {
-  late double lat;
-  late double long;
-  late String address;
-
-  LocationStatic(
-      {required this.lat, required this.long, required this.address});
 }

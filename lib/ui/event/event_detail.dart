@@ -5,42 +5,42 @@ import 'package:assessment/constants/app_constants.dart';
 import 'package:assessment/constants/styles.dart';
 import 'package:assessment/model_classes/categories_model.dart';
 import 'package:assessment/model_classes/data_model.dart';
+import 'package:assessment/model_classes/image_data_model.dart';
 import 'package:assessment/provider/app_provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:overlay_tutorial/overlay_tutorial.dart';
 import 'package:provider/provider.dart';
+import 'dart:ui' as ui;
 
 class EventDetail extends StatefulWidget {
-  List<ImagesSegment> imageSegments;
-  ImagesByID imageData;
-  List<ImagesCaptions> imageCaptions;
+  ImageObjectModel imageObject;
 
-  EventDetail(
-      {required this.imageCaptions,
-      required this.imageData,
-      required this.imageSegments});
+  EventDetail({required this.imageObject});
 
   @override
   State<EventDetail> createState() => _EventDetailState();
 }
 
 class _EventDetailState extends State<EventDetail> {
-  // late Size imageSize;
-
-  bool isLoading = true;
+  late Size imageSize;
   List<SegmentationAgainstCatID> segmentationAgainstCatID = [];
+  bool isLoading = true;
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) async {
-      // imageSize = await _calculateImageDimension(widget.imageData.cocoUrl!);
+      ui.Image image =
+          await getImageSize(widget.imageObject.imageData.cocoUrl!);
+      imageSize = Size(image.width.toDouble().sp, image.height.toDouble().sp);
+      segmentationAgainstCatIDFunc();
       setState(() {
         isLoading = false;
       });
-      // print(imageSize);
-      segmentationAgainstCatIDFunc();
+
+      print(imageSize);
+      print(imageSize.aspectRatio);
     });
 
     super.initState();
@@ -51,12 +51,34 @@ class _EventDetailState extends State<EventDetail> {
     return Consumer<AppProvider>(builder: (context, appProvider, child) {
       return Scaffold(
         appBar: AppBar(
-          title: Text("Detail Screen"),
+          backgroundColor: AppConfig.colors.themeColor,
+          centerTitle: true,
+          title: Text(
+            "Detail Screen",
+            style: latoBlack.copyWith(
+                fontSize: 18.sp, color: AppConfig.colors.whiteColor),
+          ),
+          actions: [
+            GestureDetector(
+              onTap: () {
+                appProvider.tabFavIcon(widget.imageObject);
+              },
+              child: Padding(
+                padding:  EdgeInsets.all(8.0.sp),
+                child: ImageIcon(
+                  AssetImage(AppConfig.images.heart),
+                  size: 25.sp,
+                  color: appProvider.checkFavImageObject(widget.imageObject)
+                      ? AppConfig.colors.redColor
+                      : Color(0xffD9D4D5),
+                ),
+              ),
+            )
+          ],
         ),
         body: isLoading
             ? Center(child: CircularProgressIndicator())
-            : Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.sp),
+            : SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -64,10 +86,9 @@ class _EventDetailState extends State<EventDetail> {
                     SizedBox(height: 20.sp),
                     categoriesTab(appProvider),
                     SizedBox(height: 20.sp),
-                    eventImage(widget.imageData),
+                    eventImage(widget.imageObject.imageData),
                     SizedBox(height: 20.sp),
-                    eventInfo(widget.imageCaptions),
-                    SizedBox(height: 20.h),
+                    eventInfo(widget.imageObject.imagesCaptions),
                   ],
                 ),
               ),
@@ -84,7 +105,7 @@ class _EventDetailState extends State<EventDetail> {
             .toList()
             .first;
         return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.sp),
+          padding: EdgeInsets.symmetric(horizontal: 6.sp),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8.sp),
             child: Image.network(
@@ -105,108 +126,103 @@ class _EventDetailState extends State<EventDetail> {
                 );
               },
             ),
-
-            // CachedNetworkImage(
-            //   imageUrl: cat.image,
-            //   imageBuilder: (context, imageProvider) => Container(
-            //     width: 50.sp,
-            //     height: 50.sp,
-            //     decoration: BoxDecoration(
-            //       image:
-            //           DecorationImage(image: imageProvider, fit: BoxFit.cover),
-            //     ),
-            //   ),
-            //   placeholder: (context, url) => CircularProgressIndicator(),
-            //   errorWidget: (context, url, error) => errorImage(),
-            // )
           ),
         );
       }),
     );
   }
 
-  Future<Size> _calculateImageDimension(String url) {
-    setState(() {
-      isLoading = true;
-    });
-    Completer<Size> completer = Completer();
-    Image image = Image.network("$url");
-    if (mounted)
-      image.image.resolve(ImageConfiguration()).addListener(
-        ImageStreamListener(
-          (ImageInfo image, bool synchronousCall) {
-            var myImage = image.image;
-            Size size =
-                Size(myImage.width.toDouble(), myImage.height.toDouble());
-            completer.complete(size);
-          },
-        ),
-      );
-
-    return completer.future;
+  Future<ui.Image> getImageSize(String path) async {
+    var completer = Completer<ImageInfo>();
+    var img = new NetworkImage(path);
+    img
+        .resolve(const ImageConfiguration())
+        .addListener(ImageStreamListener((info, _) {
+      completer.complete(info);
+    }));
+    ImageInfo imageInfo = await completer.future;
+    return imageInfo.image;
   }
 
   Widget eventInfo(List<ImagesCaptions> imageCaption) {
-    return Expanded(
+    return Padding(
+      padding: EdgeInsets.all(8.0.sp),
       child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: List.generate(imageCaption.length, (index) {
-            String? text = imageCaption[index].caption;
-            return Text(
-              text ?? "",
-              style: latoRegular.copyWith(
-                  fontSize: 14.sp, color: AppConfig.colors.titleColor),
-              textAlign: TextAlign.start,
-            );
-          })),
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Description:",
+            style: latoBlack.copyWith(
+                fontSize: 16.sp, color: AppConfig.colors.titleColor),
+            textAlign: TextAlign.start,
+          ),
+          Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: List.generate(imageCaption.length, (index) {
+                String? text = imageCaption[index].caption;
+                return Text(
+                  text ?? "",
+                  style: latoRegular.copyWith(
+                      fontSize: 14.sp, color: AppConfig.colors.titleColor),
+                  textAlign: TextAlign.start,
+                );
+              })),
+        ],
+      ),
     );
   }
 
-  Widget eventImage(ImagesByID imageData) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        ClipRRect(
-            borderRadius: BorderRadius.circular(8.sp),
-            child: CachedNetworkImage(
+  Widget eventImage(ImageData imageData) {
+    return ClipRRect(
+        borderRadius: BorderRadius.circular(8.sp),
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            CachedNetworkImage(
               imageUrl: imageData.cocoUrl ?? "",
               imageBuilder: (context, imageProvider) => Container(
-                height: 220.sp,
                 decoration: BoxDecoration(
-                  image: DecorationImage(
-                      image: imageProvider, fit: BoxFit.cover),
+                  image:
+                      DecorationImage(image: imageProvider, fit: BoxFit.cover),
                 ),
+                width: imageSize.width.sp,
+                height: imageSize.height.sp,
               ),
               placeholder: (context, url) => CircularProgressIndicator(),
-              errorWidget: (context, url, error) =>
-                  Center(child: errorImage()),
-            )),
-        OverlayTutorialScope(
-          enabled: true,
-          overlayColor: Colors.blueAccent.withOpacity(.6),
-          overlayChildren:
-              List.generate(segmentationAgainstCatID.length, (index) {
-            return OverlayTutorialHole(
-              enabled: true,
-              overlayTutorialEntry: OverlayTutorialCustomShapeEntry(
-                shapeBuilder: (rect, path) {
-                  path = Path.combine(
-                    PathOperation.difference,
-                    path,
-                    Path()
-                      ..addPolygon(segmentationAgainstCatID[index].offset, true),
+              errorWidget: (context, url, error) => Center(child: errorImage()),
+            ),
+            SizedBox(
+              width: imageSize.width.sp,
+              height: imageSize.height.sp,
+              child: OverlayTutorialScope(
+                enabled: true,
+                overlayColor: Colors.blueAccent.withOpacity(.6),
+                overlayChildren:
+                    List.generate(segmentationAgainstCatID.length, (index) {
+                  return OverlayTutorialHole(
+                    enabled: true,
+                    overlayTutorialEntry: OverlayTutorialCustomShapeEntry(
+                      shapeBuilder: (rect, path) {
+                        path = Path.combine(
+                          PathOperation.difference,
+                          path,
+                          Path()
+                            ..addPolygon(
+                                segmentationAgainstCatID[index].offset, true),
+                        );
+                        return path;
+                      },
+                    ),
+                    child: SizedBox.shrink(),
                   );
-                  return path;
-                },
+                }),
+                child: SizedBox.shrink(),
               ),
-              child: SizedBox.shrink(),
-            );
-          }),
-          child: SizedBox.shrink(),
-        ),
-      ],
-    );
+            ),
+          ],
+        ));
   }
 
   Widget errorImage() {
@@ -230,6 +246,49 @@ class _EventDetailState extends State<EventDetail> {
     );
   }
 
+  void segmentationAgainstCatIDFunc() {
+    List<String> segmentString = [];
+    List<int> catID = [];
+    List<Offset> offset = [];
+
+    print("image is is ${widget.imageObject.imageData.id}");
+    /* Get number of segment categories in image*/
+    widget.imageObject.imagesSegment.forEach((segments) {
+      if (catID.contains(segments.categoryId!)) {
+        print("already ");
+      } else {
+        catID.add(segments.categoryId!);
+      }
+    });
+
+    print("number of categories in this image ${catID.length}");
+    catID.forEach((categoryID) {
+      widget.imageObject.imagesSegment.forEach((seg) {
+        if (seg.categoryId == categoryID) {
+          segmentString.add(seg.segmentation!);
+        }
+      });
+
+      print("category is ${categoryID}");
+      print(segmentString.length);
+      List<double> segments = convertStringToList(segmentString);
+      for (int x = 0; x < segments.length;) {
+        // offset.add(Offset(segments[x] - 110.sp, segments[x + 1] + 25.sp));
+        offset.add(Offset(segments[x] - imageSize.aspectRatio * 3,
+            segments[x + 1] + imageSize.aspectRatio));
+        x = x + 2;
+      }
+      segmentationAgainstCatID.add(SegmentationAgainstCatID(
+          segmentation: segments, categoryID: categoryID, offset: offset));
+
+      print(offset);
+      segmentString = [];
+      offset = [];
+    });
+
+    setState(() {});
+  }
+
   List<double> convertStringToList(List<String> segmentString) {
     List<double> segment = [];
     segmentString.forEach((element) {
@@ -244,44 +303,6 @@ class _EventDetailState extends State<EventDetail> {
     });
 
     return segment;
-  }
-
-  void segmentationAgainstCatIDFunc() {
-    List<String> segmentString = [];
-    List<int> catID = [];
-    List<Offset> offset = [];
-    print("image is is ${widget.imageData.id}");
-    /* Get number of segment categories in image*/
-    widget.imageSegments.forEach((segments) {
-      if (catID.contains(segments.categoryId!)) {
-        print("already ");
-      } else {
-        catID.add(segments.categoryId!);
-      }
-    });
-
-    print("number of categories in this image ${catID.length}");
-    catID.forEach((categoryID) {
-      widget.imageSegments.forEach((seg) {
-        if (seg.categoryId == categoryID) {
-          segmentString.add(seg.segmentation!);
-        }
-      });
-
-      print("category is ${categoryID}");
-      print(segmentString.length);
-      List<double> segments = convertStringToList(segmentString);
-      for (int x = 0; x < segments.length;) {
-        offset.add(Offset(segments[x], segments[x + 1]));
-        x = x + 2;
-      }
-      segmentationAgainstCatID.add(SegmentationAgainstCatID(
-          segmentation: segments, categoryID: categoryID, offset: offset));
-
-      print(offset);
-      segmentString = [];
-      offset = [];
-    });
   }
 }
 
