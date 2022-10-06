@@ -20,13 +20,18 @@ cd ios &&  pod install && cd ../  (For Intel Chip)
 
 
 2:For state-management use Provider (Recommended By Flutter)
+
 3:To fetch data from Api calls uses Dio package
+
 4:Use Hive package to store favorite data locally
+
 5:For API call its using dio:
-6:api_functions.dart file has all the API call methods, and also before calling an API checking network availability.
-7:For font using loto family
-8:Most reusable UI(s) are created as separate components which can be found in ui/global_widget folders.
-9: Screen recording of the flow 
+        api_functions.dart file has all the API call methods, and also before calling an API checking network availability.
+
+6:For font using loto family
+7:Most reusable UI(s) are created as separate components which can be found in ui/global_widget folders.
+
+8: Screen recording of the flow 
         https://drive.google.com/file/d/14dkWvCSCS-I6aP-8O0OYS6UZSGKz282a/view?usp=sharing
 
 
