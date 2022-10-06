@@ -112,11 +112,13 @@ class _EventListState extends State<EventList> {
                 if (appProvider.hasNextPage == false)
                   Container(
                     padding: const EdgeInsets.only(top: 30, bottom: 40),
-                    color: AppConfig.colors.themeColor,
+                    color: AppConfig.colors.whiteColor,
                     child: Center(
                       child: Text(
                         'You have fetched all of the content',
-                        style: latoRegular.copyWith(fontSize: 14.sp),
+                        style: latoRegular.copyWith(
+                            fontSize: 14.sp,
+                            color: AppConfig.colors.themeColor),
                       ),
                     ),
                   ),

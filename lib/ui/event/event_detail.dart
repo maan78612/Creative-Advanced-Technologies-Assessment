@@ -39,8 +39,6 @@ class _EventDetailState extends State<EventDetail> {
         isLoading = false;
       });
 
-      print(imageSize);
-      print(imageSize.aspectRatio);
     });
 
     super.initState();
@@ -64,7 +62,7 @@ class _EventDetailState extends State<EventDetail> {
                 appProvider.tabFavIcon(widget.imageObject);
               },
               child: Padding(
-                padding:  EdgeInsets.all(8.0.sp),
+                padding: EdgeInsets.all(8.0.sp),
                 child: ImageIcon(
                   AssetImage(AppConfig.images.heart),
                   size: 25.sp,
@@ -285,21 +283,27 @@ class _EventDetailState extends State<EventDetail> {
       segmentString = [];
       offset = [];
     });
-
-    setState(() {});
   }
 
   List<double> convertStringToList(List<String> segmentString) {
     List<double> segment = [];
     segmentString.forEach((element) {
       var data = jsonDecode(element);
-      List<List<double>> imagesID = List<List<double>>.from(
-          data.map((model) => List<double>.from(model)));
-      imagesID.forEach((element) {
-        element.forEach((e) {
-          segment.add(e);
+      print("data=$data");
+      if (data.toString().contains("counts")) {
+// data is not correct here
+      } else {
+        List<List<double>> imagesID = List<List<double>>.from(
+            data.map((model) => List<double>.from(model)));
+        imagesID.forEach((element) {
+          element.forEach((e) {
+            segment.add(e);
+          });
         });
-      });
+      }
+
+      print("==========");
+      print("segment= $segment");
     });
 
     return segment;

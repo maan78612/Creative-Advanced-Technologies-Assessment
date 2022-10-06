@@ -24,7 +24,7 @@ class AppProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /*=================================== GET  DATA=============================*/
+  /*=================================== Dashboard =============================*/
 
   int selectedDashBoardIndex = 0;
 
@@ -93,6 +93,7 @@ class AppProvider extends ChangeNotifier {
 
     dynamic res = await APIServices.getImageIDsByCategoryID(catIDs);
     if (res is ErrorResponse) {
+      ShowMessage.inDialog(res.errorDescription??"", true);
       stopLoader();
     } else {
       imagesIDs = List<int>.from(res);
@@ -116,7 +117,7 @@ class AppProvider extends ChangeNotifier {
 
     /*===================== If there is next page & no loading and scroll
         position is on end then call API Function ==========================*/
-
+    hasNextPage=true;
     if ((hasNextPage == true &&
             isLoadMoreRunning == false &&
             maxScroll == currentScroll) ||
@@ -159,6 +160,7 @@ class AppProvider extends ChangeNotifier {
 
         print("search response is $res");
         if (res is ErrorResponse) {
+          ShowMessage.inDialog(res.errorDescription??"", true);
           stopLoader();
           isLoadMoreRunning = false;
           print("Error Response is ${res.errorDescription}");

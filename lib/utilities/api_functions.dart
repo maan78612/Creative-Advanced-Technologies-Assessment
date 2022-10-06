@@ -21,7 +21,7 @@ class ApiRequests {
       if (kDebugMode) {
         print("no internet connection");
       }
-      ErrorResponse(
+      return ErrorResponse(
           errorCode: -444, errorDescription: " No internet connection");
     }
     try {
@@ -61,7 +61,7 @@ class ApiRequests {
 
         return ErrorResponse(
           errorCode: response?.statusCode,
-          errorDescription: e.message,
+          errorDescription: "Couldn't find the post [HttpException]",
         );
       } else if (e.error is FormatException) {
         if (kDebugMode) {
@@ -69,7 +69,7 @@ class ApiRequests {
         }
         return ErrorResponse(
           errorCode: response?.statusCode,
-          errorDescription: e.message,
+          errorDescription:"Bad response format [FormatException]",
         );
       } else if (e.error is SocketException) {
         if (kDebugMode) {
@@ -78,7 +78,7 @@ class ApiRequests {
 
         return ErrorResponse(
           errorCode: response?.statusCode,
-          errorDescription: e.message,
+          errorDescription: "No Internet connection [SocketException]",
         );
       } else {
         if (kDebugMode) {

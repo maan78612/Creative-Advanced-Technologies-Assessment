@@ -27,35 +27,52 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
   @override
   Widget build(BuildContext context) {
     return Consumer<AppProvider>(builder: (context, appProvider, _) {
-      return Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 10.sp),
-            title(title: "Favorite Categories"),
-            SizedBox(height: 10.sp),
-            categoriesTab(appProvider, categories),
-            SizedBox(height: 10.sp),
-            title(title: "Favorite Items"),
-            Expanded(
-              child: ListView.builder(
-                itemCount: appProvider.favoriteImageObjects.length,
-                itemBuilder: (_, index) {
-                  ImageObjectModel favImageObject =
-                  appProvider.favoriteImageObjects[index];
+      return categories.isNotEmpty
+          ? Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 10.sp),
+                  title(title: "Favorite Categories"),
+                  SizedBox(height: 10.sp),
+                  categoriesTab(appProvider, categories),
+                  SizedBox(height: 10.sp),
+                  title(title: "Favorite Items"),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: appProvider.favoriteImageObjects.length,
+                      itemBuilder: (_, index) {
+                        ImageObjectModel favImageObject =
+                            appProvider.favoriteImageObjects[index];
 
-                  return eventCard(
-                      imageObjectModel: favImageObject,
-                      appProvider: appProvider);
-                },
+                        return eventCard(
+                            imageObjectModel: favImageObject,
+                            appProvider: appProvider);
+                      },
+                    ),
+                  ),
+                  SizedBox(height: 10.sp),
+                ],
               ),
-            ),
-            SizedBox(height: 10.sp),
-          ],
-        ),
-      );
+            )
+          : Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "No Favorite Item",
+                    style: latoBlack.copyWith(
+                        fontSize: 24.sp, color: AppConfig.colors.grey),
+                  ),
+                  SizedBox(height: 10.sp),
+                  Image.asset(AppConfig.images.heart,
+                      width: 50.sp, fit: BoxFit.fitWidth)
+                ],
+              ),
+            );
     });
   }
 
