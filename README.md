@@ -1,4 +1,4 @@
-# assessment
+# Assessment
 
 Creative Advance Assessment
  
@@ -29,10 +29,13 @@ Event Details Screen
 # Steps before Running:
 For Iphone please run below
 
-- To run the code on IOS please set minimum deployment target to 14 onXcode as well. 
+- To run the code on IOS please set minimum deployment target to 14 onXcode as well.
 - add these lines on terminal
+- 
 cd ios && arch -x86_64 pod install && cd ../  (For M1 Chip)
+
 OR
+
 cd ios &&  pod install && cd ../  (For Intel Chip)
 
 # About the project
